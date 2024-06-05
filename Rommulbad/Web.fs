@@ -1,155 +1,85 @@
 module Rommulbad.Web
 
-open Rommulbad
-open Rommulbad.Database
-open Rommulbad.Store
+open Models
+open Services
 open Giraffe
 open Thoth.Json.Net
 open Thoth.Json.Giraffe
+open Microsoft.AspNetCore.Http
 
+module ErrorHandling =
+    let handleServiceError (error: ServiceError) (next: HttpFunc) (ctx: HttpContext) =
+        match error with
+        | ServiceError.InvalidData msg -> RequestErrors.BAD_REQUEST msg next ctx
+        | ServiceError.NotFound msg -> RequestErrors.NOT_FOUND msg next ctx
+        | ServiceError.UniquenessError msg -> RequestErrors.CONFLICT msg next ctx
 
 let getCandidates: HttpHandler =
     fun next ctx ->
         task {
-            let store = ctx.GetService<Store>()
-
-            let candidates =
-                InMemoryDatabase.all store.candidates
-                |> Seq.map (fun (name, _, gId, dpl) ->
-                    { Candidate.Name = name
-                      GuardianId = gId
-                      Diploma = dpl })
-
-            return! ThothSerializer.RespondJsonSeq candidates Candidate.encode next ctx
+            let candidateService = ctx.GetService<CandidateService>()
+            match candidateService.GetAllCandidates() with
+            | Ok candidates -> return! ThothSerializer.RespondJsonSeq candidates Candidate.encode next ctx
+            | Error error -> return! ErrorHandling.handleServiceError error next ctx
         }
 
 let getCandidate (name: string) : HttpHandler =
     fun next ctx ->
         task {
-            let store = ctx.GetService<Store>()
-
-            let candidate = InMemoryDatabase.lookup name store.candidates
-
-
-            match candidate with
-            | None -> return! RequestErrors.NOT_FOUND "Employee not found!" next ctx
-            | Some(name, _, gId, dpl) ->
-                return!
-                    ThothSerializer.RespondJson
-                        { Name = name
-                          GuardianId = gId
-                          Diploma = dpl }
-                        Candidate.encode
-                        next
-                        ctx
-
+            let candidateService = ctx.GetService<CandidateService>()
+            match candidateService.GetCandidate(name) with
+            | Ok candidate -> return! ThothSerializer.RespondJson candidate Candidate.encode next ctx
+            | Error error -> return! ErrorHandling.handleServiceError error next ctx
         }
 
 let addSession (name: string) : HttpHandler =
     fun next ctx ->
         task {
-
-            let! session = ThothSerializer.ReadBody ctx Session.decode
-
-            match session with
-            | Error errorMessage -> return! RequestErrors.BAD_REQUEST errorMessage next ctx
-            | Ok { Deep = deep
-                   Date = date
-                   Minutes = minutes } ->
-                let store = ctx.GetService<Store>()
-
-                InMemoryDatabase.insert (name, date) (name, deep, date, minutes) store.sessions
-                |> ignore
-
-
-                return! text "OK" next ctx
+            let! body = ctx.ReadBodyFromRequestAsync()
+            let sessionService = ctx.GetService<SessionService>()
+            match sessionService.DecodeSession(body) with
+            | Ok session ->
+                match sessionService.AddSession(name, session) with
+                | Ok () -> return! text "OK" next ctx
+                | Error error -> return! ErrorHandling.handleServiceError error next ctx
+            | Error error -> return! ErrorHandling.handleServiceError error next ctx
         }
-
-let encodeSession (_, deep, date, minutes) =
-    Encode.object
-        [ "date", Encode.datetime date
-          "deep", Encode.bool deep
-          "minutes", Encode.int minutes ]
-
 
 let getSessions (name: string) : HttpHandler =
     fun next ctx ->
         task {
-            let store = ctx.GetService<Store>()
-
-            let sessions = InMemoryDatabase.filter (fun (n, _, _, _) -> n = name) store.sessions
-
-            return! ThothSerializer.RespondJsonSeq sessions encodeSession next ctx
+            let sessionService = ctx.GetService<SessionService>()
+            match sessionService.GetSessions(name) with
+            | Ok sessions -> return! ThothSerializer.RespondJsonSeq sessions Session.encode next ctx
+            | Error error -> return! ErrorHandling.handleServiceError error next ctx
         }
 
 let getTotalMinutes (name: string) : HttpHandler =
     fun next ctx ->
         task {
-            let store = ctx.GetService<Store>()
-
-            let total =
-                InMemoryDatabase.filter (fun (n, _, _, _) -> n = name) store.sessions
-                |> Seq.map (fun (_, _, _, a) -> a)
-                |> Seq.sum
-
-            return! ThothSerializer.RespondJson total Encode.int next ctx
+            let sessionService = ctx.GetService<SessionService>()
+            match sessionService.GetTotalMinutes(name) with
+            | Ok total -> return! ThothSerializer.RespondJson total Encode.int next ctx
+            | Error error -> return! ErrorHandling.handleServiceError error next ctx
         }
-
 
 let getEligibleSessions (name: string, diploma: string) : HttpHandler =
     fun next ctx ->
         task {
-
-            let store = ctx.GetService<Store>()
-
-            let shallowOk =
-                match diploma with
-                | "A" -> true
-                | _ -> false
-
-            let minMinutes =
-                match diploma with
-                | "A" -> 1
-                | "B" -> 10
-                | _ -> 15
-
-            let filter (n, d, _, a) = (d || shallowOk) && (a >= minMinutes)
-
-
-            let sessions = InMemoryDatabase.filter filter store.sessions
-
-            return! ThothSerializer.RespondJsonSeq sessions encodeSession next ctx
-
+            let sessionService = ctx.GetService<SessionService>()
+            match sessionService.GetEligibleSessions(name, diploma) with
+            | Ok sessions -> return! ThothSerializer.RespondJsonSeq sessions Session.encode next ctx            
+            | Error error -> return! ErrorHandling.handleServiceError error next ctx
         }
 
 let getTotalEligibleMinutes (name: string, diploma: string) : HttpHandler =
     fun next ctx ->
         task {
-            let store = ctx.GetService<Store>()
-
-            let shallowOk =
-                match diploma with
-                | "A" -> true
-                | _ -> false
-
-            let minMinutes =
-                match diploma with
-                | "A" -> 1
-                | "B" -> 10
-                | _ -> 15
-
-            let filter (n, d, _, a) = (d || shallowOk) && (a >= minMinutes)
-
-
-            let total =
-                InMemoryDatabase.filter filter store.sessions
-                |> Seq.map (fun (_, _, _, a) -> a)
-                |> Seq.sum
-
-            return! ThothSerializer.RespondJson total Encode.int next ctx
+            let sessionService = ctx.GetService<SessionService>()
+            match sessionService.GetTotalEligibleMinutes(name, diploma) with
+            | Ok total -> return! ThothSerializer.RespondJson total Encode.int next ctx
+            | Error error -> return! ErrorHandling.handleServiceError error next ctx
         }
-
-
 
 let routes: HttpHandler =
     choose
@@ -159,4 +89,5 @@ let routes: HttpHandler =
           GET >=> routef "/candidate/%s/session" getSessions
           GET >=> routef "/candidate/%s/session/total" getTotalMinutes
           GET >=> routef "/candidate/%s/session/%s" getEligibleSessions
-          GET >=> routef "/candidate/%s/session/%s/total" getTotalEligibleMinutes ]
+          GET >=> routef "/candidate/%s/session/%s/total" getTotalEligibleMinutes 
+        ]

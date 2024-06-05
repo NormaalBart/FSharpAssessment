@@ -1,4 +1,4 @@
-namespace Rommulbad
+namespace Models.Model
 
 open Thoth.Json.Net
 open Thoth.Json.Giraffe
