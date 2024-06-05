@@ -7,9 +7,9 @@
 
   <ItemGroup>
 	  <Compile Include="ResponseHandler.fs" />
-
 	  <Compile Include="SessionHandler.fs" />
-    <Compile Include="CandidateHandler.fs" />
+      <Compile Include="CandidateHandler.fs" />
+	  <Compile Include="GuardianHandler.fs" />
 	  <Compile Include="Routes.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

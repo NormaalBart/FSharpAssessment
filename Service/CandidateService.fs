@@ -13,7 +13,7 @@ type CandidateService(store: Store) =
             |> Seq.choose (fun (name, bDay, gId, dpl) ->
             match Candidate.build name bDay gId dpl with
                 | Ok candidate -> Some candidate
-                | Error error -> None)
+                | Error _ -> None)
         )
 
     member this.GetCandidate(name: string) : Result<Candidate, ServiceError> =

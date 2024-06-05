@@ -70,7 +70,7 @@ type Store() =
           ("234-FDEG", "Marie Moor")
           ("999-ZZZZ", "Margeet van Lankerveld") ]
         |> Seq.choose (fun (id, name) ->
-            match Guardian.build id name [] with
+            match Guardian.build id name with
             | Ok guardian -> Some (GuardianId.value guardian.Id, (GuardianId.value guardian.Id, Name.value guardian.Name))
             | _ -> None)
         |> InMemoryDatabase.ofSeq

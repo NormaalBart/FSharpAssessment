@@ -53,3 +53,4 @@ module Candidate =
             match build name dateOfBirth guardianId diploma  with
             | Ok candidate -> Ok candidate
             | Error e -> Error e)
+

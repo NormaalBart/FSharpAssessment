@@ -2,6 +2,7 @@
 
 open CandidateHandler
 open SessionHandler
+open GuardianHandler
 open Giraffe
 
 let routes: HttpHandler =
@@ -13,5 +14,8 @@ let routes: HttpHandler =
           GET >=> routef "/candidate/%s/session" getSessions
           GET >=> routef "/candidate/%s/session/total" getTotalMinutes
           GET >=> routef "/candidate/%s/session/%s" getEligibleSessions
-          GET >=> routef "/candidate/%s/session/%s/total" getTotalEligibleMinutes 
+          GET >=> routef "/candidate/%s/session/%s/total" getTotalEligibleMinutes
+          GET >=> route "/guardian" >=> getGuardians
+          POST >=> route "/guardian" >=> addGuardian
+          GET >=> routef "/guardian/%s" getGuardian
         ]

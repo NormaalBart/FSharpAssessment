@@ -6,7 +6,6 @@ open Giraffe
 open JsonParser
 open Thoth.Json.Net
 
-
 let addSession (name: string) : HttpHandler =
     fun next ctx ->
         task {
@@ -49,4 +48,18 @@ let getTotalEligibleMinutes (name: string, diploma: string) : HttpHandler =
             let sessionService = ctx.GetService<SessionService>()
             let result = sessionService.GetTotalEligibleMinutes(name, diploma)
             return! respondWithJsonSingle Encode.int result next ctx
+        }
+
+let getCandidatesEligibleForDiplomaUpgrade: HttpHandler =
+    fun next ctx ->
+        task {
+            let candidateService = ctx.GetService<CandidateService>()
+            let sessionService = ctx.GetService<SessionService>()
+            
+            let candidatesResult = candidateService.GetAllCandidates()
+            match candidatesResult with
+            | Ok candidates -> 
+                let result = sessionService.GetSessions("")
+                return! respondWithJsonSeq Session.encode result next ctx
+            | Error error -> return! respondWithJsonSingle Session.encode (Error error) next ctx
         }

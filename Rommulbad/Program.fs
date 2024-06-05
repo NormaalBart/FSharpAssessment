@@ -26,6 +26,10 @@ let configureServices (services: IServiceCollection) =
             let store = serviceProvider.GetService<Store>()
             CandidateService(store)
         )
+        .AddSingleton<GuardianService>(fun serviceProvider -> 
+            let store = serviceProvider.GetService<Store>()
+            GuardianService(store)
+        )
         .AddSingleton<Json.ISerializer>(ThothSerializer(skipNullField = false, caseStrategy = CaseStrategy.CamelCase))
     |> ignore
 

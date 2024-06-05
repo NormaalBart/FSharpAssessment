@@ -8,9 +8,7 @@ open Thoth.Json.Net
 type SessionService(store: Store) =
 
     let getSessionsForUser (name: string) : seq<Session> =
-        InMemoryDatabase.filter (fun (n, pool, date, minutes) ->
-            n = name
-        ) store.sessions
+        InMemoryDatabase.filter (fun (n, pool, date, minutes) -> n = name) store.sessions
         |> Seq.choose (fun (_, pool, date, minutes) ->
             match Session.build pool date minutes with
             | Ok session -> Some session
@@ -19,7 +17,7 @@ type SessionService(store: Store) =
 
     member this.AddSession(name: string, session: Session) : Result<Session, ServiceError> =
         match InMemoryDatabase.insert (name, session.Date) (name, session.Pool, session.Date, Minutes.value session.Minutes) store.sessions with
-        | Ok () -> Ok (session)
+        | Ok () -> Ok session
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 
     member this.GetSessions(name: string) : Result<seq<Session>, ServiceError> =
@@ -76,3 +74,4 @@ type SessionService(store: Store) =
                 | Session.InvalidPoolType _ -> "Invalid pool type"
             Error (ServiceError.InvalidData errorMessage)
         | Error err -> Error (ServiceError.InvalidData err)
+
