@@ -11,7 +11,6 @@
     <Compile Include="Session.fs" />
     <Compile Include="Candidate.fs" />
 	<Compile Include="Guardian.fs" />
-	  <Compile Include="Model.fs" />
   </ItemGroup>
 
 	<ItemGroup>

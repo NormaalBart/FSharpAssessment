@@ -17,9 +17,9 @@ type SessionService(store: Store) =
             | Error _ -> None
         )
 
-    member this.AddSession(name: string, session: Session) : Result<unit, ServiceError> =
+    member this.AddSession(name: string, session: Session) : Result<Session, ServiceError> =
         match InMemoryDatabase.insert (name, session.Date) (name, session.Pool, session.Date, Minutes.value session.Minutes) store.sessions with
-        | Ok () -> Ok ()
+        | Ok () -> Ok (session)
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 
     member this.GetSessions(name: string) : Result<seq<Session>, ServiceError> =

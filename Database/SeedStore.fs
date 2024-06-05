@@ -27,7 +27,7 @@ type Store() =
           ("Camiel", DateTime(2015, 11, 3), "123-ABCD", "C")
           ("Lore", DateTime(2018, 8, 30), "999-ZZZZ", "") ]
         |> Seq.choose (fun (n, bd, gi, dpl) ->
-            match Candidate.build n gi dpl with
+            match Candidate.build n bd gi dpl with
             | Ok candidate -> Some (Name.value candidate.Name, (Name.value candidate.Name, bd, GuardianId.value candidate.GuardianId, Diploma.value candidate.Diploma))
             | Error _ -> None)
         |> InMemoryDatabase.ofSeq
