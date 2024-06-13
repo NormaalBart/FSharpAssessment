@@ -31,38 +31,20 @@ type SessionService(store: Store) =
         )
 
     member this.GetEligibleSessions(name: string, diploma: string) : Result<seq<Session>, ServiceError> =
-        let shallowOk = diploma = "A"
-        let minMinutes =
-            match diploma with
-            | "A" -> 1
-            | "B" -> 10
-            | _ -> 15
-
-        let filter session =
-            (session.Pool = Shallow || shallowOk) && (Minutes.value session.Minutes >= minMinutes)
-
-        Ok (
-            getSessionsForUser name
-            |> Seq.filter filter
-        )
+        match Diploma.create diploma with
+            | Ok diploma -> Ok (
+                getSessionsForUser name
+                |> Seq.filter (fun session -> Session.isApplicableForDiploma diploma session)
+                )
+            | Error error -> Error(InvalidData "invalid diploma")
 
     member this.GetTotalEligibleMinutes(name: string, diploma: string) : Result<int, ServiceError> =
-        let shallowOk = diploma = "A"
-        let minMinutes =
-            match diploma with
-            | "A" -> 1
-            | "B" -> 10
-            | _ -> 15
-
-        let filter session =
-            (session.Pool = Shallow || shallowOk) && (Minutes.value session.Minutes >= minMinutes)
-
-        Ok (
-            getSessionsForUser name
-            |> Seq.filter filter
-            |> Seq.map (fun session -> Minutes.value session.Minutes)
-            |> Seq.sum
-        )
+        match this.GetEligibleSessions(name, diploma) with
+            | Ok session -> Ok (
+                session|> Seq.map (fun session -> Minutes.value session.Minutes)
+                |> Seq.sum
+                )
+            | Error error -> Error error
 
     member this.DecodeSession(json: string) : Result<Session, ServiceError> =
         match Decode.fromString Session.decode json with

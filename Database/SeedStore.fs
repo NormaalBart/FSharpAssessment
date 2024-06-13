@@ -58,7 +58,10 @@ type Store() =
           ("Camiel", Deep, DateTime(2023, 12, 10), 20)
           ("Camiel", Deep, DateTime(2023, 12, 17), 10)
           ("Lore", Shallow, DateTime(2024, 6, 3), 1)
-          ("Lore", Shallow, DateTime(2024, 6, 10), 5) ]
+          ("Lore", Shallow, DateTime(2024, 6, 10), 30)
+          ("Lore", Shallow, DateTime(2024, 6, 11), 30)
+          ("Lore", Shallow, DateTime(2024, 6, 12), 30)
+          ("Lore", Shallow, DateTime(2024, 6, 13), 30) ]
         |> Seq.choose (fun (n, pool, date, min) ->
             match Session.build pool date min with
             | Ok session -> Some ((n, date), (n, session.Pool, session.Date, Minutes.value session.Minutes))

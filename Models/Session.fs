@@ -40,6 +40,13 @@ module Session =
         | Ok m -> Ok { Pool = pool; Date = date; Minutes = m }
         | Error e -> Error (InvalidMinutes e)
 
+    let isApplicableForDiploma (diploma: Diploma.Diploma) (session: Session) : bool =
+        match diploma with
+        | Diploma.None -> false
+        | Diploma.A -> (session.Pool = Shallow || session.Pool = Deep) && (Minutes.value session.Minutes >= 1)
+        | Diploma.B -> session.Pool = Deep && (Minutes.value session.Minutes >= 10)
+        | Diploma.C -> session.Pool = Deep && (Minutes.value session.Minutes >= 15)
+
     let encode (session: Session) : JsonValue =
         Encode.object
             [ "pool", Encode.string (match session.Pool with | Deep -> "deep" | Shallow -> "shallow")

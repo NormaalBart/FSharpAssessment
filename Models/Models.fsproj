@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Diploma.fs" />
     <Compile Include="GuardianId.fs" />
     <Compile Include="Name.fs" />
     <Compile Include="Session.fs" />

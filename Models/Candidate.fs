@@ -3,25 +3,11 @@
 open Thoth.Json.Net
 open System
 
-type Diploma = private Diploma of string
-
-module Diploma =
-
-    type Error =
-        | InvalidDiploma of string
-
-    let create (diploma: string) : Result<Diploma, Error> =
-        match diploma with
-        | "" | "A" | "B" | "C" -> Ok (Diploma diploma)
-        | _ -> Error (InvalidDiploma "Diploma must be one of '', 'A', 'B', or 'C'")
-
-    let value (Diploma diploma) = diploma
-
 type Candidate =
     { Name: Name
       DateOfBirth: DateTime
       GuardianId: GuardianId
-      Diploma: Diploma }
+      Diploma: Diploma.Diploma }
 
 module Candidate =
 
@@ -37,6 +23,13 @@ module Candidate =
         | Error e, _, _ -> Error (InvalidName e)
         | _, Error e, _ -> Error (InvalidGuardianId e)
         | _, _, Error e -> Error (InvalidDiploma e)
+
+    let canUpgradeToDiploma (desiredDiploma: Diploma.Diploma) (sessions: Session seq) : bool =
+        let totalMinutes =
+            sessions
+            |> Seq.filter (Session.isApplicableForDiploma desiredDiploma)
+            |> Seq.sumBy (fun session -> Minutes.value session.Minutes)
+        totalMinutes >= Diploma.minimumMinutesRequired desiredDiploma
 
     let encode (candidate: Candidate) : JsonValue =
         Encode.object
