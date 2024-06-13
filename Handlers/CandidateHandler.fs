@@ -32,3 +32,10 @@ let addCandidate: HttpHandler =
                 | Error error -> Error error
             return! respondWithJsonSingle Candidate.encode result next ctx
         }
+
+let requestHandlers: HttpHandler = 
+    choose [
+          GET >=> route "/candidate" >=> getCandidates
+          POST >=> route "/candidate" >=> addCandidate
+          GET >=> routef "/candidate/%s" getCandidate
+    ]

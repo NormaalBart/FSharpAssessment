@@ -63,3 +63,12 @@ let getCandidatesEligibleForDiplomaUpgrade: HttpHandler =
                 return! respondWithJsonSeq Session.encode result next ctx
             | Error error -> return! respondWithJsonSingle Session.encode (Error error) next ctx
         }
+
+let requestHandlers: HttpHandler =
+    choose [
+          POST >=> routef "/candidate/%s/session" addSession
+          GET >=> routef "/candidate/%s/session" getSessions
+          GET >=> routef "/candidate/%s/session/total" getTotalMinutes
+          GET >=> routef "/candidate/%s/session/%s" getEligibleSessions
+          GET >=> routef "/candidate/%s/session/%s/total" getTotalEligibleMinutes
+    ]

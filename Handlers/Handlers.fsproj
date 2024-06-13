@@ -1,14 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-
+	
   <ItemGroup>
     <PackageReference Include="Giraffe" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -17,8 +13,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="ResponseHandler.fs" />
+    <Compile Include="CandidateHandler.fs" />
+    <Compile Include="GuardianHandler.fs" />
+    <Compile Include="SessionHandler.fs" />
+	<Compile Include="Routes.fs" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\Database\Database.fsproj" />
+	<ProjectReference Include="..\Models\Models.fsproj" />
 	<ProjectReference Include="..\Service\Service.fsproj" />
-	<ProjectReference Include="..\Handlers\Handlers.fsproj" />
   </ItemGroup>
 
 </Project>
