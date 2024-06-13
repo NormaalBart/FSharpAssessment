@@ -11,9 +11,13 @@ let addSession (name: string) : HttpHandler =
         task {
             let! body = ctx.ReadBodyFromRequestAsync()
             let sessionService = ctx.GetService<SessionService>()
+            let candidateService = ctx.GetService<CandidateService>()
             let result =
                 match sessionService.DecodeSession(body) with
-                | Ok session -> sessionService.AddSession(name, session)
+                | Ok session -> 
+                    match candidateService.GetCandidate name with
+                    | Ok _ -> sessionService.AddSession(name, session)
+                    | Error error -> Error error
                 | Error error -> Error error
             return! respondWithJsonSingle Session.encode result next ctx
         }
