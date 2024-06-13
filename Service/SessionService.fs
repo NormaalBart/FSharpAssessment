@@ -9,14 +9,14 @@ type SessionService(store: Store) =
 
     let getSessionsForUser (name: string) : seq<Session> =
         InMemoryDatabase.filter (fun (n, pool, date, minutes) -> n = name) store.sessions
-        |> Seq.choose (fun (n, pool, date, minutes) ->
-            match Session.build pool date (Minutes.value minutes) with
+        |> Seq.choose (fun (_, pool, date, minutes) ->
+            match Session.build pool date minutes with
             | Ok session -> Some session
             | Error _ -> None
         )
 
     member this.AddSession(name: string, session: Session) : Result<Session, ServiceError> =
-        match InMemoryDatabase.insert (name, session.Date) (name, session.Pool, session.Date, session.Minutes) store.sessions with
+        match InMemoryDatabase.insert (name, session.Date) (name, session.Pool, session.Date, Minutes.value session.Minutes) store.sessions with
         | Ok () -> Ok session
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 

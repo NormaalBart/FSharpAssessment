@@ -1,4 +1,5 @@
-﻿open Microsoft.AspNetCore.Builder
+﻿open System
+open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
@@ -9,6 +10,7 @@ open Database.SeedStore
 open Services
 
 let configureApp (app: IApplicationBuilder) =
+    // Add Giraffe to the ASP.NET Core pipeline
     app.UseGiraffe Routes.routes
 
 let configureServices (services: IServiceCollection) =
