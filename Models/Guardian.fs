@@ -5,7 +5,9 @@ open Models
 
 type Guardian =
     { Id: GuardianId
-      Name: Name}
+      Name: Name
+      Candidates: Candidate seq
+      }
 
 module Guardian =
 
@@ -16,14 +18,18 @@ module Guardian =
 
     let build (id: string) (name: string) : Result<Guardian, Error> =
         match GuardianId.create id, Name.create name with
-        | Ok i, Ok n -> Ok { Id = i; Name = n }
+        | Ok i, Ok n -> Ok { Id = i; Name = n; Candidates = [] }
         | Error e, _ -> Error (InvalidId e)
         | _, Error e -> Error (InvalidName e)
+
+    let addCandidates(guardian: Guardian) (candidates: Candidate seq) =
+        {guardian with Candidates = candidates}
 
     let encode (guardian: Guardian) : JsonValue =
         Encode.object
             [ "id", Encode.string (GuardianId.value guardian.Id)
-              "name", Encode.string (Name.value guardian.Name) ]
+              "name", Encode.string (Name.value guardian.Name)
+              "candidates", Encode.seq (Seq.map Candidate.encode guardian.Candidates) ]
 
     let decode : Decoder<Result<Guardian, Error>> =
         Decode.object (fun get ->

@@ -60,6 +60,6 @@ let handlers: HttpHandler =
     choose [
           POST >=> route "/candidate" >=> addCandidate
           GET >=> route "/candidate" >=> getCandidates
-          GET >=> routef "/candidate/%s/upgrade" nextDiploma
+          PUT >=> routef "/candidate/%s/upgrade" nextDiploma
           GET >=> routef "/candidate/%s" getCandidate
     ]
