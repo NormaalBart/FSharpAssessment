@@ -33,9 +33,29 @@ let addCandidate: HttpHandler =
             return! respondWithJsonSingle Candidate.encode result next ctx
         }
 
+let nextDiploma (name: string) : HttpHandler =
+    fun next ctx ->
+        task {
+            let candidateService = ctx.GetService<CandidateService>()
+            let sessionService = ctx.GetService<SessionService>()
+            let result = 
+                match candidateService.GetCandidate(name) with
+                | Ok candidate -> 
+                    match sessionService.GetSessions name with
+                    | Ok sessions -> 
+                        match (Candidate.upgradeDiploma candidate (Diploma.nextDiploma candidate.Diploma) sessions) with
+                        | Ok newCandidate -> candidateService.UpdateCandidate newCandidate
+                        | Error error -> Error (ServiceError.InvalidData "cannot upgrade")
+                    | Error error -> Error error
+                | Error error -> Error error
+                
+            return! respondWithJsonSingle Candidate.encode result next ctx
+        }
+
 let handlers: HttpHandler = 
     choose [
           POST >=> route "/candidate" >=> addCandidate
           GET >=> route "/candidate" >=> getCandidates
+          GET >=> routef "/candidate/%s/upgrade" nextDiploma
           GET >=> routef "/candidate/%s" getCandidate
     ]

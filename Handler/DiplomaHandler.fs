@@ -29,7 +29,6 @@ let getUpgradableCandidates: HttpHandler =
             return! respondWithJsonSeq Candidate.encode result next ctx
         }
 
-
 let handlers: HttpHandler = 
     choose [
           GET >=> route "/diploma/upgradable" >=> getUpgradableCandidates

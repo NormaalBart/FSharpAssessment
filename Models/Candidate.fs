@@ -16,6 +16,7 @@ module Candidate =
         | InvalidGuardianId of GuardianId.Error
         | InvalidDiploma of Diploma.Error
         | MissingField of string
+        | UpgradeNotAllowed of string
 
     let build (name: string) (dateOfBirth: DateTime)  (guardianId: string) (diploma: string): Result<Candidate, Error> =
         match Name.create name, GuardianId.create guardianId, Diploma.create diploma with
@@ -30,6 +31,12 @@ module Candidate =
             |> Seq.filter (Session.isApplicableForDiploma desiredDiploma)
             |> Seq.sumBy (fun session -> Minutes.value session.Minutes)
         totalMinutes >= Diploma.minimumMinutesRequired desiredDiploma
+
+    let upgradeDiploma (candidate: Candidate) (desiredDiploma: Diploma.Diploma) (sessions: Session seq) : Result<Candidate, Error> =
+        if canUpgradeToDiploma desiredDiploma sessions then
+            Ok { candidate with Diploma = desiredDiploma }
+        else
+            Error (UpgradeNotAllowed "Candidate does not meet the requirements for the desired diploma")
 
     let encode (candidate: Candidate) : JsonValue =
         Encode.object

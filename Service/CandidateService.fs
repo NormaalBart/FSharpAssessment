@@ -29,6 +29,12 @@ type CandidateService(store: Store) =
         | Ok () -> Ok (candidate)
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 
+    member this.UpdateCandidate(candidate: Candidate) : Result<Candidate, ServiceError> =
+        let candidateKey = Name.value candidate.Name
+        let candidateData = (candidateKey, candidate.DateOfBirth, GuardianId.value candidate.GuardianId, Diploma.value candidate.Diploma)
+        match InMemoryDatabase.update candidateKey candidateData store.candidates with
+        | _ -> Ok(candidate)
+
     member this.DecodeCandidate(json: string) : Result<Candidate, ServiceError> =
         match Decode.fromString Candidate.decode json with
         | Ok (Ok candidate) -> Ok candidate
