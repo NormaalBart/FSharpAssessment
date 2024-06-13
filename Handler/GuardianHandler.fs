@@ -32,3 +32,10 @@ let addGuardian: HttpHandler =
                 | Error error -> Error error
             return! respondWithJsonSingle Guardian.encode result next ctx
         }
+
+let handlers: HttpHandler = 
+    choose [
+          GET >=> route "/guardian" >=> getGuardians
+          POST >=> route "/guardian" >=> addGuardian
+          GET >=> routef "/guardian/%s" getGuardian
+    ]
