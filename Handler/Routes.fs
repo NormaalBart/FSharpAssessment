@@ -8,4 +8,5 @@ let routes: HttpHandler =
             CandidateHandler.handlers
             SessionHandler.handlers
             GuardianHandler.handlers
+            DiplomaHandler.handlers
         ]

@@ -7,10 +7,10 @@
 
   <ItemGroup>
 	  <Compile Include="ResponseHandler.fs" />
-
+	  <Compile Include="DiplomaHandler.fs" />
 	  <Compile Include="CandidateHandler.fs" />
-    <Compile Include="GuardianHandler.fs" />
-    <Compile Include="SessionHandler.fs" />
+	  <Compile Include="GuardianHandler.fs" />
+      <Compile Include="SessionHandler.fs" />
 	  <Compile Include="Routes.fs" />
 
   </ItemGroup>

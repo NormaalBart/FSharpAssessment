@@ -33,35 +33,9 @@ let addCandidate: HttpHandler =
             return! respondWithJsonSingle Candidate.encode result next ctx
         }
 
-let getUpgradableCandidates: HttpHandler =
-    fun next ctx ->
-        task {
-            let candidateService = ctx.GetService<CandidateService>()
-            let sessionService = ctx.GetService<SessionService>()
-            let result = 
-                match candidateService.GetAllCandidates() with
-                | Ok candidates ->
-                    candidates 
-                    |> Seq.filter (fun candidate -> 
-                        match Diploma.nextDiploma candidate.Diploma with
-                        | Diploma.A | Diploma.B | Diploma.C -> true
-                        | Diploma.None -> false
-                    )
-                    |> Seq.filter (fun candidate ->
-                        match sessionService.GetSessions (Name.value candidate.Name) with
-                        | Ok sessions -> Candidate.canUpgradeToDiploma (Diploma.nextDiploma candidate.Diploma) sessions
-                        | Error _ -> false
-                    )
-                    |> Ok
-                | Error error -> Error error
-            return! respondWithJsonSeq Candidate.encode result next ctx
-        }
-
-
 let handlers: HttpHandler = 
     choose [
           POST >=> route "/candidate" >=> addCandidate
           GET >=> route "/candidate" >=> getCandidates
-          GET >=> route "/candidate/upgradable" >=> getUpgradableCandidates
           GET >=> routef "/candidate/%s" getCandidate
     ]
