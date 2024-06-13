@@ -42,7 +42,7 @@ module Session =
 
     let isApplicableForDiploma (diploma: Diploma.Diploma) (session: Session) : bool =
         match diploma with
-        | Diploma.None -> false
+        | Diploma.None -> true
         | Diploma.A -> (session.Pool = Shallow || session.Pool = Deep) && (Minutes.value session.Minutes >= 1)
         | Diploma.B -> session.Pool = Deep && (Minutes.value session.Minutes >= 10)
         | Diploma.C -> session.Pool = Deep && (Minutes.value session.Minutes >= 15)

@@ -23,13 +23,6 @@ type SessionService(store: Store) =
     member this.GetSessions(name: string) : Result<seq<Session>, ServiceError> =
         Ok (getSessionsForUser name)
 
-    member this.GetTotalMinutes(name: string) : Result<int, ServiceError> =
-        Ok (
-            getSessionsForUser name
-            |> Seq.map (fun session -> Minutes.value session.Minutes)
-            |> Seq.sum
-        )
-
     member this.GetEligibleSessions(name: string, diploma: string) : Result<seq<Session>, ServiceError> =
         match Diploma.create diploma with
             | Ok diploma -> Ok (

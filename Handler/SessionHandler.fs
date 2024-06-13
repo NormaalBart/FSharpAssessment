@@ -26,13 +26,6 @@ let getSessions (name: string) : HttpHandler =
             return! JsonParser.respondWithJsonSeq Session.encode result next ctx
         }
 
-let getTotalMinutes (name: string) : HttpHandler =
-    fun next ctx ->
-        task {
-            let sessionService = ctx.GetService<SessionService>()
-            let result = sessionService.GetTotalMinutes(name)
-            return! respondWithJsonSingle Encode.int result next ctx
-        }
 
 let getEligibleSessions (name: string, diploma: string) : HttpHandler =
     fun next ctx ->
@@ -49,6 +42,9 @@ let getTotalEligibleMinutes (name: string, diploma: string) : HttpHandler =
             let result = sessionService.GetTotalEligibleMinutes(name, diploma)
             return! respondWithJsonSingle Encode.int result next ctx
         }
+
+let getTotalMinutes (name: string) : HttpHandler = 
+    getTotalEligibleMinutes(name, Diploma.value Diploma.None)
 
 let getCandidatesEligibleForDiplomaUpgrade: HttpHandler =
     fun next ctx ->
