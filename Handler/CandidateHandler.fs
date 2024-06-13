@@ -26,9 +26,13 @@ let addCandidate: HttpHandler =
         task {
             let! body = ctx.ReadBodyFromRequestAsync()
             let candidateService = ctx.GetService<CandidateService>()
+            let guardianService = ctx.GetService<GuardianService>()
             let result =
                 match candidateService.DecodeCandidate(body) with
-                | Ok candidate -> candidateService.AddCandidate candidate
+                | Ok candidate -> 
+                    match guardianService.GetGuardian (GuardianId.value candidate.GuardianId) with
+                        | Ok guardian -> candidateService.AddCandidate candidate
+                        | Error error -> Error error 
                 | Error error -> Error error
             return! respondWithJsonSingle Candidate.encode result next ctx
         }
