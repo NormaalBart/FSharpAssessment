@@ -33,6 +33,7 @@ module Session =
     type Error =
         | InvalidMinutes of Minutes.Error
         | InvalidPoolType of string
+        | MissingField of string
 
     let build (pool: PoolType) (date: DateTime) (minutes: int) : Result<Session, Error> =
         match Minutes.create minutes with
@@ -47,10 +48,15 @@ module Session =
 
     let decode : Decoder<Result<Session, Error>> =
         Decode.object (fun get ->
-            let poolType = get.Required.Field "pool" Decode.string
-            let date = get.Required.Field "date" Decode.datetime
-            let minutes = get.Required.Field "minutes" Decode.int
-            match poolType with
-            | "deep" -> build Deep date minutes
-            | "shallow" -> build Shallow date minutes
-            | _ -> Error (InvalidPoolType "Invalid pool type"))
+            let poolType = get.Optional.Field "pool" Decode.string
+            let date = get.Optional.Field "date" Decode.datetime
+            let minutes = get.Optional.Field "minutes" Decode.int
+            match poolType, date, minutes with
+            | Some p, Some d, Some m ->
+                match p with
+                | "deep" -> build Deep d m
+                | "shallow" -> build Shallow d m
+                | _ -> Error (InvalidPoolType "Invalid pool type")
+            | None, _, _ -> Error (MissingField "pool")
+            | _, None, _ -> Error (MissingField "date")
+            | _, _, None -> Error (MissingField "minutes"))

@@ -29,6 +29,7 @@ module Candidate =
         | InvalidName of Name.Error
         | InvalidGuardianId of GuardianId.Error
         | InvalidDiploma of Diploma.Error
+        | MissingField of string
 
     let build (name: string) (dateOfBirth: DateTime)  (guardianId: string) (diploma: string): Result<Candidate, Error> =
         match Name.create name, GuardianId.create guardianId, Diploma.create diploma with
@@ -46,11 +47,16 @@ module Candidate =
 
     let decode : Decoder<Result<Candidate, Error>> =
         Decode.object (fun get ->
-            let name = get.Required.Field "name" Decode.string
-            let dateOfBirth = get.Required.Field "date_of_birth" Decode.datetime
-            let guardianId = get.Required.Field "guardian_id" Decode.string
-            let diploma = ""
-            match build name dateOfBirth guardianId diploma  with
-            | Ok candidate -> Ok candidate
-            | Error e -> Error e)
-
+            let name = get.Optional.Field "name" Decode.string
+            let dateOfBirth = get.Optional.Field "date_of_birth" Decode.datetime
+            let guardianId = get.Optional.Field "guardian_id" Decode.string
+            let diploma = get.Optional.Field "diploma" Decode.string
+            match name, dateOfBirth, guardianId, diploma with
+            | Some n, Some dob, Some g, Some d -> 
+                match build n dob g d with
+                | Ok candidate -> Ok candidate
+                | Error e -> Error e
+            | None, _, _, _ -> Error (MissingField "name")
+            | _, None, _, _ -> Error (MissingField "date_of_birth")
+            | _, _, None, _ -> Error (MissingField "guardian_id")
+            | _, _, _, None -> Error (MissingField "diploma"))

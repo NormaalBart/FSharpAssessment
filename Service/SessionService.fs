@@ -72,6 +72,7 @@ type SessionService(store: Store) =
                 match err with
                 | Session.InvalidMinutes _ -> "Invalid minutes"
                 | Session.InvalidPoolType _ -> "Invalid pool type"
+                | Session.MissingField msg -> "Missing field " + msg
             Error (ServiceError.InvalidData errorMessage)
         | Error err -> Error (ServiceError.InvalidData err)
 

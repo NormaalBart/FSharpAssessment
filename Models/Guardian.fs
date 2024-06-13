@@ -12,6 +12,7 @@ module Guardian =
     type Error =
         | InvalidId of GuardianId.Error
         | InvalidName of Name.Error
+        | MissingField of string
 
     let build (id: string) (name: string) : Result<Guardian, Error> =
         match GuardianId.create id, Name.create name with
@@ -26,8 +27,9 @@ module Guardian =
 
     let decode : Decoder<Result<Guardian, Error>> =
         Decode.object (fun get ->
-            let id = get.Required.Field "id" Decode.string
-            let name = get.Required.Field "name" Decode.string
-            match build id name with
-            | Ok guardian -> Ok guardian
-            | Error e -> Error e)
+            let id = get.Optional.Field "id" Decode.string
+            let name = get.Optional.Field "name" Decode.string
+            match id, name with
+            | Some i, Some n -> build i n
+            | None, _ -> Error (MissingField "id")
+            | _, None -> Error (MissingField "name"))

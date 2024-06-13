@@ -38,5 +38,6 @@ type CandidateService(store: Store) =
                 | Candidate.InvalidName _ -> "Invalid name"
                 | Candidate.InvalidGuardianId _ -> "Invalid guardian ID"
                 | Candidate.InvalidDiploma _ -> "Invalid diploma"
+                | Candidate.MissingField message -> "missing field " + message
             Error (ServiceError.InvalidData errorMessage)
         | Error err -> Error (ServiceError.InvalidData err)

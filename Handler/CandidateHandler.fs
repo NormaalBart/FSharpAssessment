@@ -35,7 +35,7 @@ let addCandidate: HttpHandler =
 
 let handlers: HttpHandler = 
     choose [
-          GET >=> route "/candidate" >=> getCandidates
           POST >=> route "/candidate" >=> addCandidate
+          GET >=> route "/candidate" >=> getCandidates
           GET >=> routef "/candidate/%s" getCandidate
     ]

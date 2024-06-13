@@ -37,5 +37,6 @@ type GuardianService(store: Store) =
                 match err with
                 | Guardian.InvalidName _ -> "Invalid name"
                 | Guardian.InvalidId _ -> "Invalid Guardian Id"
+                | Guardian.MissingField msg -> "Missing field " + msg
             Error (ServiceError.InvalidData errorMessage)
         | Error err -> Error (ServiceError.InvalidData err)
