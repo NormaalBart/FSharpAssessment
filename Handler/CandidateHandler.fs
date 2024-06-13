@@ -31,7 +31,7 @@ let addCandidate: HttpHandler =
                 match candidateService.DecodeCandidate(body) with
                 | Ok candidate -> 
                     match guardianService.GetGuardian (GuardianId.value candidate.GuardianId) with
-                        | Ok guardian -> candidateService.AddCandidate candidate
+                        | Ok _ -> candidateService.AddCandidate candidate
                         | Error error -> Error error 
                 | Error error -> Error error
             return! respondWithJsonSingle Candidate.encode result next ctx
@@ -49,7 +49,7 @@ let nextDiploma (name: string) : HttpHandler =
                     | Ok sessions -> 
                         match (Candidate.upgradeDiploma candidate (Diploma.nextDiploma candidate.Diploma) sessions) with
                         | Ok newCandidate -> candidateService.UpdateCandidate newCandidate
-                        | Error error -> Error (ServiceError.InvalidData "cannot upgrade")
+                        | Error _ -> Error (ServiceError.InvalidData "cannot upgrade")
                     | Error error -> Error error
                 | Error error -> Error error
                 
