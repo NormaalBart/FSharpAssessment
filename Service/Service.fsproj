@@ -10,6 +10,7 @@
 	  <Compile Include="GuardianService.fs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\Application\Application.fsproj" />
 	  <ProjectReference Include="..\Database\Database.fsproj" />
 	  <ProjectReference Include="..\Models\Models.fsproj" />
 	</ItemGroup>

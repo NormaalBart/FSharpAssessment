@@ -4,7 +4,7 @@ open Models
 open Database.InstoreDatabase
 open Thoth.Json.Net
 
-type SessionService(store: StorageDatabase.IStore) =
+type SessionService(store: Application.IStore) =
 
     let getSessionsForUser (name: string) : seq<Session> =
         InMemoryDatabase.filter (fun (n, pool, date, minutes) -> n = name) store.sessions
@@ -15,7 +15,7 @@ type SessionService(store: StorageDatabase.IStore) =
         )
 
     member this.AddSession(name: string, session: Session) : Result<Session, ServiceError> =
-        match InMemoryDatabase.insert (name, session.Date) (name, session.Pool, session.Date, Minutes.value session.Minutes) store.sessions with
+        match InMemoryDatabase.insert (name, session.Date) (name, PoolType.value session.Pool, session.Date, Minutes.value session.Minutes) store.sessions with
         | Ok () -> Ok session
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 

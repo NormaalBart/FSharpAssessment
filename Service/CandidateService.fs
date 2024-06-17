@@ -4,7 +4,7 @@ open Models
 open Database.InstoreDatabase
 open Thoth.Json.Net
 
-type CandidateService(store: StorageDatabase.IStore) =
+type CandidateService(store: Application.IStore) =
 
     member this.GetAllCandidates() : Result<seq<Candidate>, ServiceError> =
         Ok (

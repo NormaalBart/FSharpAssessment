@@ -7,6 +7,22 @@ type PoolType =
     | Deep
     | Shallow
 
+module PoolType = 
+    
+    type Error =
+        | InvalidPoolType of string
+
+    let create (poolType: string) : Result<PoolType, Error> =
+        match Util.makeUpperCase poolType with
+            | "DEEP" -> Ok PoolType.Deep
+            | "SHALLOW" -> Ok PoolType.Shallow
+            | _ -> Error (InvalidPoolType "Invalid pool type")
+
+    let value (poolType: PoolType) = 
+        match poolType with
+            | Deep -> "DEEP"
+            | Shallow -> "SHALLOW"
+
 type Minutes = private Minutes of int
 
 module Minutes =
@@ -31,13 +47,14 @@ module Session =
 
     type Error =
         | InvalidMinutes of Minutes.Error
-        | InvalidPoolType of string
+        | InvalidPoolType of PoolType.Error
         | MissingField of string
 
-    let build (pool: PoolType) (date: DateTime) (minutes: int) : Result<Session, Error> =
-        match Minutes.create minutes with
-        | Ok m -> Ok { Pool = pool; Date = date; Minutes = m }
-        | Error e -> Error (InvalidMinutes e)
+    let build (pool: string) (date: DateTime) (minutes: int) : Result<Session, Error> =
+        match PoolType.create pool, Minutes.create minutes with
+        | Ok poolType, Ok minutes  -> Ok { Pool = poolType; Date = date; Minutes = minutes }
+        | Error e, _ -> Error(InvalidPoolType e)
+        | _, Error e -> Error (InvalidMinutes e)
 
     let isApplicableForDiploma (diploma: Diploma.Diploma) (session: Session) : bool =
         match diploma with
@@ -58,11 +75,7 @@ module Session =
             let date = get.Optional.Field "date" Decode.datetime
             let minutes = get.Optional.Field "minutes" Decode.int
             match poolType, date, minutes with
-            | Some p, Some d, Some m ->
-                match p with
-                | "deep" -> build Deep d m
-                | "shallow" -> build Shallow d m
-                | _ -> Error (InvalidPoolType "Invalid pool type")
+            | Some p, Some d, Some m -> build p d m
             | None, _, _ -> Error (MissingField "pool")
             | _, None, _ -> Error (MissingField "date")
             | _, _, None -> Error (MissingField "minutes"))

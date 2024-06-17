@@ -23,7 +23,12 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Service", "Service\Service.
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Models", "Models\Models.fsproj", "{56DEEDCB-9B53-4E9A-8F1E-905B3547ABCC}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Handler", "Handler\Handler.fsproj", "{6D0AF9E4-19DD-4A1C-B480-01D9F8C7B569}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Handler", "Handler\Handler.fsproj", "{6D0AF9E4-19DD-4A1C-B480-01D9F8C7B569}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EE4737D4-167D-45C9-9FB7-515367EDB9CA} = {EE4737D4-167D-45C9-9FB7-515367EDB9CA}
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Application", "Application\Application.fsproj", "{EE4737D4-167D-45C9-9FB7-515367EDB9CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +56,10 @@ Global
 		{6D0AF9E4-19DD-4A1C-B480-01D9F8C7B569}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D0AF9E4-19DD-4A1C-B480-01D9F8C7B569}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D0AF9E4-19DD-4A1C-B480-01D9F8C7B569}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE4737D4-167D-45C9-9FB7-515367EDB9CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE4737D4-167D-45C9-9FB7-515367EDB9CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE4737D4-167D-45C9-9FB7-515367EDB9CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE4737D4-167D-45C9-9FB7-515367EDB9CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

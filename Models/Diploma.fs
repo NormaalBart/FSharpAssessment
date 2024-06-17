@@ -12,7 +12,7 @@ module Diploma =
         | InvalidDiploma of string
 
     let create (diploma: string) : Result<Diploma, Error> =
-        match diploma with
+        match Util.makeUpperCase diploma with
         | "" -> Ok None
         | "A" -> Ok A
         | "B" -> Ok B

@@ -1,8 +1,7 @@
-﻿module StorageDatabase
+﻿module Application
 
 open Database.InstoreDatabase
 open System
-open Models
 
 type IStore = 
 
@@ -10,5 +9,5 @@ type IStore =
 
     abstract guardians: InMemoryDatabase<string, string * string>
 
-    abstract sessions: InMemoryDatabase<string * DateTime, string * PoolType * DateTime * int>
+    abstract sessions: InMemoryDatabase<string * DateTime, string * string * DateTime * int>
     

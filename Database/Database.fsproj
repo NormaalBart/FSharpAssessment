@@ -7,8 +7,7 @@
 
 	<ItemGroup>
 		<Compile Include="InstoreDatabase.fs" />
-		<Compile Include="IStore.fs" />
-		<Compile Include="SeedStore.fs" />
+		<Compile Include="MockData.fs" />
 	</ItemGroup>
 	
 	<ItemGroup>

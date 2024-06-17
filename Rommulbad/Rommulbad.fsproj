@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Application\Application.fsproj" />
     <ProjectReference Include="..\Database\Database.fsproj" />
 	<ProjectReference Include="..\Models\Models.fsproj" />
 	<ProjectReference Include="..\Service\Service.fsproj" />
