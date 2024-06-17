@@ -1,15 +1,12 @@
-﻿open System
-open Microsoft.AspNetCore.Builder
+﻿open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open StorageDatabase
-open Database.SeedStore
 open Services
 open Thoth.Json.Giraffe
 open Thoth.Json.Net
-open Database.SeedStore
 
 let configureApp (app: IApplicationBuilder) =
     // Add Giraffe to the ASP.NET Core pipeline

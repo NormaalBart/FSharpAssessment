@@ -1,7 +1,6 @@
 ﻿namespace Models
 
 open Thoth.Json.Net
-open Thoth.Json.Giraffe
 open System
 
 type PoolType = 
