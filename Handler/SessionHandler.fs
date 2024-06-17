@@ -58,7 +58,7 @@ let getCandidatesEligibleForDiplomaUpgrade: HttpHandler =
             
             let candidatesResult = candidateService.GetAllCandidates()
             match candidatesResult with
-            | Ok candidates -> 
+            | Ok _ -> 
                 let result = sessionService.GetSessions("")
                 return! respondWithJsonSeq Session.encode result next ctx
             | Error error -> return! respondWithJsonSingle Session.encode (Error error) next ctx

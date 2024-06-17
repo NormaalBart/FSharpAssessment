@@ -2,10 +2,9 @@
 
 open Models
 open Database.InstoreDatabase
-open Database.SeedStore
 open Thoth.Json.Net
 
-type CandidateService(store: Store) =
+type CandidateService(store: StorageDatabase.IStore) =
 
     member this.GetAllCandidates() : Result<seq<Candidate>, ServiceError> =
         Ok (
@@ -54,5 +53,6 @@ type CandidateService(store: Store) =
                 | Candidate.InvalidGuardianId _ -> "Invalid guardian ID"
                 | Candidate.InvalidDiploma _ -> "Invalid diploma"
                 | Candidate.MissingField message -> "missing field " + message
+                | Candidate.UpgradeNotAllowed _ -> "Upgrade not allowed"
             Error (ServiceError.InvalidData errorMessage)
         | Error err -> Error (ServiceError.InvalidData err)

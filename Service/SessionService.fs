@@ -2,10 +2,9 @@
 
 open Models
 open Database.InstoreDatabase
-open Database.SeedStore
 open Thoth.Json.Net
 
-type SessionService(store: Store) =
+type SessionService(store: StorageDatabase.IStore) =
 
     let getSessionsForUser (name: string) : seq<Session> =
         InMemoryDatabase.filter (fun (n, pool, date, minutes) -> n = name) store.sessions

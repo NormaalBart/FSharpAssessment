@@ -1,6 +1,7 @@
-namespace Database.SeedStore
+module Database.SeedStore
 
 open System
+open StorageDatabase
 open Database.InstoreDatabase
 open Models
 
@@ -21,8 +22,9 @@ open Models
 /// - id (3 digits followed by dash and 4 letters, e.g. 133-LEET)
 /// - name (consists of words separated by spaces)
 
-type Store() =
-    member val candidates: InMemoryDatabase<string, string * DateTime * string * string> =
+let store = { new IStore with
+
+    member this.candidates: InMemoryDatabase<string,(string * DateTime * string * string)> = 
         [ ("Eleanor", DateTime(2016, 1, 9), "123-ABCD", "A")
           ("Camiel", DateTime(2015, 11, 3), "123-ABCD", "C")
           ("Lore", DateTime(2018, 8, 30), "999-ZZZZ", "") ]
@@ -32,7 +34,17 @@ type Store() =
             | Error _ -> None)
         |> InMemoryDatabase.ofSeq
 
-    member val sessions: InMemoryDatabase<string * DateTime, string * PoolType * DateTime * int> =
+    member this.guardians: InMemoryDatabase<string,(string * string)> = 
+        [ ("123-ABCD", "Jan Janssen")
+          ("234-FDEG", "Marie Moor")
+          ("999-ZZZZ", "Margeet van Lankerveld") ]
+        |> Seq.choose (fun (id, name) ->
+            match Guardian.build id name with
+            | Ok guardian -> Some (GuardianId.value guardian.Id, (GuardianId.value guardian.Id, Name.value guardian.Name))
+            | _ -> None)
+        |> InMemoryDatabase.ofSeq
+
+    member this.sessions: InMemoryDatabase<(string * DateTime),(string * PoolType * DateTime * int)> = 
         [ ("Eleanor", Shallow, DateTime(2024, 2, 2), 3)
           ("Eleanor", Shallow, DateTime(2024, 3, 2), 5)
           ("Eleanor", Shallow, DateTime(2024, 3, 2), 10)
@@ -67,13 +79,4 @@ type Store() =
             | Ok session -> Some ((n, date), (n, session.Pool, session.Date, Minutes.value session.Minutes))
             | Error _ -> None)
         |> InMemoryDatabase.ofSeq
-
-    member val guardians: InMemoryDatabase<string, string * string> =
-        [ ("123-ABCD", "Jan Janssen")
-          ("234-FDEG", "Marie Moor")
-          ("999-ZZZZ", "Margeet van Lankerveld") ]
-        |> Seq.choose (fun (id, name) ->
-            match Guardian.build id name with
-            | Ok guardian -> Some (GuardianId.value guardian.Id, (GuardianId.value guardian.Id, Name.value guardian.Name))
-            | _ -> None)
-        |> InMemoryDatabase.ofSeq
+}

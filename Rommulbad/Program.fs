@@ -4,10 +4,10 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
+open StorageDatabase
+open Services
 open Thoth.Json.Giraffe
 open Thoth.Json.Net
-open Database.SeedStore
-open Services
 
 let configureApp (app: IApplicationBuilder) =
     // Add Giraffe to the ASP.NET Core pipeline
@@ -17,17 +17,17 @@ let configureServices (services: IServiceCollection) =
     // Add Giraffe dependencies
     services
         .AddGiraffe()
-        .AddSingleton<Store>(Store())
+        .AddSingleton<IStore>(Database.SeedStore.store)
         .AddSingleton<SessionService>(fun serviceProvider -> 
-            let store = serviceProvider.GetService<Store>()
+            let store = serviceProvider.GetService<StorageDatabase.IStore>()
             SessionService(store)
         )
         .AddSingleton<CandidateService>(fun serviceProvider -> 
-            let store = serviceProvider.GetService<Store>()
+            let store = serviceProvider.GetService<StorageDatabase.IStore>()
             CandidateService(store)
         )
         .AddSingleton<GuardianService>(fun serviceProvider -> 
-            let store = serviceProvider.GetService<Store>()
+            let store = serviceProvider.GetService<StorageDatabase.IStore>()
             GuardianService(store)
         )
         .AddSingleton<Json.ISerializer>(ThothSerializer(skipNullField = false, caseStrategy = CaseStrategy.CamelCase))

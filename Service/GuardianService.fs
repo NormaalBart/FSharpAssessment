@@ -2,10 +2,9 @@
 
 open Models
 open Database.InstoreDatabase
-open Database.SeedStore
 open Thoth.Json.Net
 
-type GuardianService(store: Store) =
+type GuardianService(store: StorageDatabase.IStore) =
 
     member this.GetAllGuardians() : Result<seq<Guardian>, ServiceError> =
         Ok (
