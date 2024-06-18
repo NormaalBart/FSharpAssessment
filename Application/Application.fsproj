@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <Compile Include="IStore.fs" />
-	  <Compile Include="SeedStore.fs" />
+	  <Compile Include="MockData.fs" />
+	  <Compile Include="MemoryDatabase.fs" />
   </ItemGroup>
 
 	<ItemGroup>

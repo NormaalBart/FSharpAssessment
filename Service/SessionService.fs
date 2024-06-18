@@ -4,18 +4,13 @@ open Models
 open Database.InstoreDatabase
 open Thoth.Json.Net
 
-type SessionService(store: Application.IStore) =
+type SessionService(database: DatabaseInterface.IDatabase) =
 
     let getSessionsForUser (name: string) : seq<Session> =
-        InMemoryDatabase.filter (fun (n, pool, date, minutes) -> n = name) store.sessions
-        |> Seq.choose (fun (_, pool, date, minutes) ->
-            match Session.build pool date minutes with
-            | Ok session -> Some session
-            | Error _ -> None
-        )
+        database.GetSessionsForUser name
 
     member this.AddSession(name: string, session: Session) : Result<Session, ServiceError> =
-        match InMemoryDatabase.insert (name, session.Date) (name, PoolType.value session.Pool, session.Date, Minutes.value session.Minutes) store.sessions with
+        match database.InsertSessionForUser name session with
         | Ok () -> Ok session
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 
@@ -28,7 +23,7 @@ type SessionService(store: Application.IStore) =
                 getSessionsForUser name
                 |> Seq.filter (fun session -> Session.isApplicableForDiploma diploma session)
                 )
-            | Error error -> Error(InvalidData "invalid diploma")
+            | Error _ -> Error(InvalidData "invalid diploma")
 
     member this.GetTotalEligibleMinutes(name: string, diploma: string) : Result<int, ServiceError> =
         match this.GetEligibleSessions(name, diploma) with

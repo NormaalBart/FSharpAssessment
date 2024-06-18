@@ -4,15 +4,11 @@ open Models
 open Database.InstoreDatabase
 open Thoth.Json.Net
 
-type CandidateService(store: Application.IStore) =
+type CandidateService(database: DatabaseInterface.IDatabase) =
 
     member this.GetAllCandidates() : Result<seq<Candidate>, ServiceError> =
         Ok (
-            InMemoryDatabase.all store.candidates
-            |> Seq.choose (fun (name, bDay, gId, dpl) ->
-            match Candidate.build name bDay gId dpl with
-                | Ok candidate -> Some candidate
-                | Error _ -> None)
+            database.GetCandidates
         )
 
     member this.GetAllCandidatesByGuardian(guardianId: GuardianId) : Result<seq<Candidate>, ServiceError> =
@@ -25,23 +21,17 @@ type CandidateService(store: Application.IStore) =
         | Error error -> Error error
 
     member this.GetCandidate(name: string) : Result<Candidate, ServiceError> =
-        match InMemoryDatabase.lookup name store.candidates with
-        | None -> Error (ServiceError.NotFound "Candidate not found")
-        | Some (name, bDay, gId, dpl) ->
-            match Candidate.build name bDay gId dpl with
-            | Ok candidate -> Ok candidate
-            | Error _ -> Error (ServiceError.InvalidData "Invalid candidate data")
+        match database.GetCandidate name with
+        | Some candidate -> Ok(candidate)
+        | None -> Error (ServiceError.NotFound "No candidate found")
 
     member this.AddCandidate(candidate: Candidate) : Result<Candidate, ServiceError> =
-        match InMemoryDatabase.insert (Name.value candidate.Name) (Name.value candidate.Name, candidate.DateOfBirth, GuardianId.value candidate.GuardianId, Diploma.value candidate.Diploma) store.candidates with
+        match database.InsertCandidate candidate with
         | Ok () -> Ok (candidate)
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 
     member this.UpdateCandidate(candidate: Candidate) : Result<Candidate, ServiceError> =
-        let candidateKey = Name.value candidate.Name
-        let candidateData = (candidateKey, candidate.DateOfBirth, GuardianId.value candidate.GuardianId, Diploma.value candidate.Diploma)
-        match InMemoryDatabase.update candidateKey candidateData store.candidates with
-        | _ -> Ok(candidate)
+        Ok (database.UpdateCandidate candidate)
 
     member this.DecodeCandidate(json: string) : Result<Candidate, ServiceError> =
         match Decode.fromString Candidate.decode json with

@@ -4,27 +4,18 @@ open Models
 open Database.InstoreDatabase
 open Thoth.Json.Net
 
-type GuardianService(store: Application.IStore) =
+type GuardianService(database: DatabaseInterface.IDatabase) =
 
-    member this.GetAllGuardians() : Result<seq<Guardian>, ServiceError> =
-        Ok (
-            InMemoryDatabase.all store.guardians
-            |> Seq.choose (fun (id, name) ->
-            match Guardian.build id name with
-                | Ok guardian -> Some guardian
-                | Error _ -> None)
-        )
+    member this.GetAllGuardians() : Guardian seq =
+        database.GetGuardians
 
     member this.GetGuardian(name: string) : Result<Guardian, ServiceError> =
-        match InMemoryDatabase.lookup name store.guardians with
+        match database.GetGuardian name with
         | None -> Error (ServiceError.NotFound "Guardian not found")
-        | Some (id, name) ->
-            match Guardian.build id name with
-            | Ok guardian -> Ok guardian
-            | Error _ -> Error (ServiceError.InvalidData "Invalid Guardian data")
+        | Some guardian -> Ok (guardian)
 
     member this.AddGuardian(guardian: Guardian) : Result<Guardian, ServiceError> =
-        match InMemoryDatabase.insert (Name.value guardian.Name) (GuardianId.value guardian.Id, Name.value guardian.Name ) store.guardians with
+        match database.InsertGuardian guardian with
         | Ok () -> Ok (guardian)
         | Error (UniquenessError msg) -> Error (ServiceError.UniquenessError msg)
 

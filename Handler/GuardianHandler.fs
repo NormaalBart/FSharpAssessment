@@ -20,14 +20,9 @@ let getGuardians: HttpHandler =
             let guardianService = ctx.GetService<GuardianService>()
             let candidateService = ctx.GetService<CandidateService>()
 
-            let result = 
-                match guardianService.GetAllGuardians() with
-                | Ok guardians ->
-                    let guardiansWithCandidates =
-                        guardians
-                        |> Seq.map (addCandidatesToGuardian candidateService)
-                    Ok guardiansWithCandidates
-                | Error error -> Error error
+            let result = Ok (
+                guardianService.GetAllGuardians()
+                |> Seq.map (addCandidatesToGuardian candidateService))
 
             return! respondWithJsonSeq Guardian.encode result next ctx
         }
