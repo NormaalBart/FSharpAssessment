@@ -11,9 +11,7 @@ let getUpgradableCandidates: HttpHandler =
             let candidateService = ctx.GetService<CandidateService>()
             let sessionService = ctx.GetService<SessionService>()
             let result = 
-                match candidateService.GetAllCandidates() with
-                | Ok candidates ->
-                    candidates 
+                candidateService.GetAllCandidates() 
                     |> Seq.filter (fun candidate -> 
                         match Diploma.nextDiploma candidate.Diploma with
                         | Diploma.A | Diploma.B | Diploma.C -> true
@@ -24,9 +22,7 @@ let getUpgradableCandidates: HttpHandler =
                         | Ok sessions -> Candidate.canUpgradeToDiploma (Diploma.nextDiploma candidate.Diploma) sessions
                         | Error _ -> false
                     )
-                    |> Ok
-                | Error error -> Error error
-            return! respondWithJsonSeq Candidate.encode result next ctx
+            return! respondWithJsonSeq Candidate.encode (Ok result) next ctx
         }
 
 let handlers: HttpHandler = 

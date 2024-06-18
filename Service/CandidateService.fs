@@ -6,19 +6,12 @@ open Thoth.Json.Net
 
 type CandidateService(database: DatabaseInterface.IDatabase) =
 
-    member this.GetAllCandidates() : Result<seq<Candidate>, ServiceError> =
-        Ok (
-            database.GetCandidates
-        )
+    member this.GetAllCandidates() : Candidate seq =
+        database.GetCandidates
 
-    member this.GetAllCandidatesByGuardian(guardianId: GuardianId) : Result<seq<Candidate>, ServiceError> =
-        match this.GetAllCandidates() with
-        | Ok candidates ->
-            let filteredCandidates =
-                candidates
-                |> Seq.filter (fun candidate -> candidate.GuardianId = guardianId)
-            Ok filteredCandidates
-        | Error error -> Error error
+    member this.GetAllCandidatesByGuardian(guardianId: GuardianId) : Candidate seq =
+        this.GetAllCandidates()
+        |> Seq.filter (fun candidate -> candidate.GuardianId = guardianId)
 
     member this.GetCandidate(name: string) : Result<Candidate, ServiceError> =
         match database.GetCandidate name with

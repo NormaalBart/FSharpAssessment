@@ -50,20 +50,6 @@ let getTotalEligibleMinutes (name: string, diploma: string) : HttpHandler =
 let getTotalMinutes (name: string) : HttpHandler = 
     getTotalEligibleMinutes(name, Diploma.value Diploma.None)
 
-let getCandidatesEligibleForDiplomaUpgrade: HttpHandler =
-    fun next ctx ->
-        task {
-            let candidateService = ctx.GetService<CandidateService>()
-            let sessionService = ctx.GetService<SessionService>()
-            
-            let candidatesResult = candidateService.GetAllCandidates()
-            match candidatesResult with
-            | Ok _ -> 
-                let result = sessionService.GetSessions("")
-                return! respondWithJsonSeq Session.encode result next ctx
-            | Error error -> return! respondWithJsonSingle Session.encode (Error error) next ctx
-        }
-
 let handlers: HttpHandler = 
     choose [
           POST >=> routef "/candidate/%s/session" addSession

@@ -8,11 +8,9 @@ open Giraffe
 let addCandidatesToGuardian (candidateService: CandidateService) (guardian: Guardian) : Guardian =
     let guardianId = guardian.Id
     let candidates =
-        match candidateService.GetAllCandidatesByGuardian(guardianId) with
-        | Ok candidates -> candidates |> Seq.toList
-        | Error _ -> []
+        candidateService.GetAllCandidatesByGuardian(guardianId) 
+        |> Seq.toList
     Guardian.addCandidates guardian candidates
-
 
 let getGuardians: HttpHandler =
     fun next ctx ->

@@ -9,7 +9,7 @@ let getCandidates: HttpHandler =
     fun next ctx ->
         task {
             let candidateService = ctx.GetService<CandidateService>()
-            let result = candidateService.GetAllCandidates()
+            let result = Ok(candidateService.GetAllCandidates())
             return! respondWithJsonSeq Candidate.encode result next ctx
         }
 
